@@ -4,13 +4,22 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import networkmonitor.repository.DeviceRepository;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import networkmonitor.model.Device;
 
 @Service
 public class DeviceScannerImpl {
+
+	@Autowired
+    private DeviceRepository deviceRepository;
+
+    DeviceScannerImpl(DeviceRepository deviceRepository) {
+        this.deviceRepository = deviceRepository;
+    }
 
     public List<Device> scanDevices() {
         List<Device> devices = new ArrayList<>();
@@ -35,7 +44,6 @@ public class DeviceScannerImpl {
                     String ip = parts[0];
                     String mac = parts[1];
                     String tipo = parts[2]; 
-                    System.out.println(ip);
 
                     if (mac.matches("([0-9a-fA-F]{2}[:-]){5}[0-9a-fA-F]{2}")) {
                         Device device = new Device();
@@ -45,6 +53,8 @@ public class DeviceScannerImpl {
 
                         device.setVendor(MacVendorLookupImpl.getVendor(mac));
                         devices.add(device);
+                        deviceRepository.save(device);
+                        
                     } else {
                         System.out.println("MAC Address inválido: " + mac);
                     }

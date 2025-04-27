@@ -66,16 +66,13 @@ public class DeviceServiceImpl implements DeviceService{
 	@Override
 	public List<Device> discoverAndSaveDevices() {
 	    List<Device> devices = deviceScanner.scanDevices();
-	    System.out.println("Dispositivos encontrados: " + devices.size());  // Verifique quantos dispositivos foram encontrados
 	    
 	    devices.forEach(device -> {
-	        System.out.println("Verificando dispositivo: " + device.getMacAddress());
 	        
 	        //verifica se o dispositivo existe no banco
 	        boolean deviceExists = deviceRepository.findByMacAddress(device.getMacAddress()).isPresent();
 	        
 	        if (!deviceExists) {
-	            System.out.println("Dispositivo não encontrado no banco, salvando: " + device.getMacAddress());
 	            Device enrichedDevice = snmpManager.enrichDevice(device);
 	            deviceRepository.save(enrichedDevice);
 	        }

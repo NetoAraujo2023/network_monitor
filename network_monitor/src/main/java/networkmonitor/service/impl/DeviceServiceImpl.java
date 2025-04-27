@@ -6,14 +6,12 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import lombok.RequiredArgsConstructor;
 import networkmonitor.model.Device;
 import networkmonitor.repository.DeviceRepository;
 import networkmonitor.service.DeviceService;
 import networkmonitor.websocket.WebSocketAlerts;
 
 @Service
-@RequiredArgsConstructor
 public class DeviceServiceImpl implements DeviceService{
 	private final DeviceRepository deviceRepository;
 	private final DeviceScannerImpl deviceScanner;

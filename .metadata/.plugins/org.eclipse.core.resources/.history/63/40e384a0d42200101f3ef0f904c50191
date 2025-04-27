@@ -1,0 +1,5 @@
+package networkmonitor.service.impl;
+
+public class MacVendorLookupImpl {
+
+}

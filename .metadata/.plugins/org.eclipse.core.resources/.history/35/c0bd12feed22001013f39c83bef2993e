@@ -1,0 +1,57 @@
+package networkmonitor.service.impl;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import networkmonitor.model.Device;
+
+@Service
+public class DeviceScannerImpl {
+
+    public List<Device> scanDevices() {
+        List<Device> devices = new ArrayList<>();
+        try {
+            // Executando o comando 'arp -a' para obter dispositivos na rede
+            Process process = Runtime.getRuntime().exec("arp -a");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+
+            // Iterando pelas linhas de saída do comando 'arp -a'
+            while ((line = reader.readLine()) != null) {
+                // Verifique se a linha tem o formato esperado para um dispositivo ARP
+                if (line.contains("dynamic")) {  // Considerar usar "dynamic" ou "dinâmico" dependendo do sistema
+                    String[] parts = line.split("\\s+");
+
+                    // Certifique-se de que a linha tem a quantidade de partes esperadas
+                    if (parts.length >= 4) {
+                        String ip = parts[1].replaceAll("[()]", "");
+                        String mac = parts[3];
+
+                        // Verificando o formato do MAC Address
+                        if (mac.matches("([0-9a-fA-F]{2}[:-]){5}[0-9a-fA-F]{2}")) {
+                            Device device = new Device();
+                            device.setIpAddress(ip);
+                            device.setMacAddress(mac);
+                            device.setName("Device " + mac.substring(0, 6));  // Nome com base nos primeiros 6 caracteres do MAC
+
+                            // Buscando o fornecedor do dispositivo com base no MAC Address
+                            device.setVendor(MacVendorLookupImpl.getVendor(mac));
+                            devices.add(device);
+                        } else {
+                            System.out.println("MAC Address inválido: " + mac);
+                        }
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return devices;
+    }
+}
+

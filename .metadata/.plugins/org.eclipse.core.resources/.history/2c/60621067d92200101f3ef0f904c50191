@@ -1,0 +1,20 @@
+package networkmonitor.service.impl;
+
+import java.io.IOException;
+
+import org.snmp4j.Snmp;
+import org.snmp4j.TransportMapping;
+import org.snmp4j.transport.DefaultUdpTransportMapping;
+import org.springframework.stereotype.Service;
+
+@Service
+public class SNMPManagerImpl {
+	
+	private Snmp snmp;
+	
+	public void start() throws IOException{
+		TransportMapping transport = new DefaultUdpTransportMapping();
+		snmp = new Snmp(transport);
+		transport.listen();
+	}
+}

@@ -1,0 +1,20 @@
+package networkmonitor.service.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import networkmonitor.model.Device;
+
+@Service
+public class DeviceScannerImpl {
+	public List<Device> scanDevices(){
+		List<Device> devices = new ArrayList<>();
+		try {
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+}

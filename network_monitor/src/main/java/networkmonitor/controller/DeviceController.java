@@ -1,0 +1,39 @@
+package networkmonitor.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import lombok.RequiredArgsConstructor;
+import networkmonitor.model.Device;
+import networkmonitor.service.DeviceService;
+import networkmonitor.service.impl.DeviceServiceImpl;
+
+@RestController
+@RequiredArgsConstructor
+public class DeviceController {
+	@Autowired
+	private DeviceServiceImpl deviceService;
+
+    @GetMapping("/api/devices")
+    public List<Device> getAllDevices() {
+        return deviceService.getAllDevices(); 
+    }
+
+    @PostMapping("/api/devices")
+    public ResponseEntity<Device> addDevice(@RequestBody Device device) {
+        return ResponseEntity.ok(deviceService.addDevice(device));
+    }
+
+    @GetMapping("/scan")
+    public List<Device> scanAndSaveDevices() {
+        List<Device> devices = deviceService.discoverAndSaveDevices();
+        return devices;
+    }
+}

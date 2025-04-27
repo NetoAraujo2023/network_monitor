@@ -1,0 +1,5 @@
+package networkmonitor.config;
+
+public class SecurityConfig {
+
+}

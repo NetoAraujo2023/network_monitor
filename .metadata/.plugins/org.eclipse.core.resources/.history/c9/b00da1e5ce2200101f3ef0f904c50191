@@ -1,0 +1,5 @@
+package networkmonitor.model;
+
+public class Device {
+
+}

@@ -1,0 +1,46 @@
+package networkmonitor.controller;
+
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import networkmonitor.config.JwtTokenUtil;
+
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
+
+	private final AuthenticationManager authenticationManager;
+	private final JwtTokenUtil jwtTokenUtil;
+	
+	private final InMemoryUserDetailsManager inMemoryUserDetailsManager;
+
+    public AuthController(AuthenticationManager authenticationManager, 
+                        JwtTokenUtil jwtTokenUtil,
+                        InMemoryUserDetailsManager inMemoryUserDetailsManager) {
+        this.authenticationManager = authenticationManager;
+        this.jwtTokenUtil = jwtTokenUtil;
+        this.inMemoryUserDetailsManager = inMemoryUserDetailsManager;
+    }
+	
+	public AuthController(AuthenticationManager authenticationManager, JwtTokenUtil jwtTokenUtil) {
+		this.authenticationManager = authenticationManager;
+		this.jwtTokenUtil = jwtTokenUtil;
+	}
+	
+	@PostMapping("/login")
+	public String login(@RequestBody AuthRequest request) {
+		authenticationManager.authenticate(
+				new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+		
+		UserDetails userDetails = inMemoryUserDetailsManager.loadUserByUsername(request.getUsername());
+        
+        return jwtTokenUtil.generateToken(userDetails);
+	}
+	
+}

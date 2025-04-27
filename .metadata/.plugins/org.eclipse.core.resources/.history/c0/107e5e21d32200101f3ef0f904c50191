@@ -1,0 +1,57 @@
+package networkmonitor.service.impl;
+
+import java.io.IOException;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+import networkmonitor.model.Device;
+import networkmonitor.repository.DeviceRepository;
+import networkmonitor.service.DeviceService;
+
+@Service
+@RequiredArgsConstructor
+public class DeviceServiceImpl implements DeviceService{
+	private final DeviceRepository deviceRepository;
+	/*private final DeviceScanner deviceScanner;
+	private final SNMPManager snmpManager;
+	private final WebSocketAlerts webSocketAlerts;*/
+	
+	@Override
+	public List<Device> getAllDevices() {
+		return deviceRepository.findAll();
+	}
+
+	@Override
+	public Device addDevice(Device device) {
+		return deviceRepository.save(device);
+	}
+
+	@Override
+	public Device updateDeviceStatus(String ipAddress, String status) {
+		Device device = deviceRepository.findByIpAddr(ipAddress)
+				.orElseThrow(() -> new RuntimeException("Device not found"));
+		device.setStatus(status);
+		return deviceRepository.save(device);
+	}
+
+	@Override
+	public boolean pingDevice(String ipAddress) {
+		try {
+			Process ping = Runtime.getRuntime().exec("ping -c 1" + ipAddress);
+			
+		} catch (IOException | InterruptedException e) {
+			// TODO: handle exception
+		}
+		return false;
+	}
+
+	@Override
+	public List<Device> discoverAndSaveDevices() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+
+}

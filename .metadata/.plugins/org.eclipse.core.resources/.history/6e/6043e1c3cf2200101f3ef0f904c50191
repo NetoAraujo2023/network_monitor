@@ -1,0 +1,5 @@
+package networkmonitor.repository;
+
+public interface DeviceMetricRepository {
+
+}

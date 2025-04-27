@@ -1,0 +1,9 @@
+package networkmonitor.service.impl;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class MacVendorLookupImpl {
+	private static final Map<String, String> OUI_DATABASE = new HashMap<>();
+
+}

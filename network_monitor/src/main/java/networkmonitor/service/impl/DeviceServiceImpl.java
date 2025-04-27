@@ -1,0 +1,89 @@
+package networkmonitor.service.impl;
+
+import java.io.IOException;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+import networkmonitor.model.Device;
+import networkmonitor.repository.DeviceRepository;
+import networkmonitor.service.DeviceService;
+import networkmonitor.websocket.WebSocketAlerts;
+
+@Service
+@RequiredArgsConstructor
+public class DeviceServiceImpl implements DeviceService{
+	private final DeviceRepository deviceRepository;
+	private final DeviceScannerImpl deviceScanner;
+	private final SNMPManagerImpl snmpManager;
+	private final WebSocketAlerts webSocketAlerts;
+	
+	@Autowired
+    public DeviceServiceImpl(DeviceRepository deviceRepository,
+                           DeviceScannerImpl deviceScanner,
+                           SNMPManagerImpl snmpManager,
+                           WebSocketAlerts webSocketAlerts) {
+        this.deviceRepository = deviceRepository;
+        this.deviceScanner = deviceScanner;
+        this.snmpManager = snmpManager;
+        this.webSocketAlerts = webSocketAlerts;
+    }
+	
+	@Override
+	public List<Device> getAllDevices() {
+		return deviceRepository.findAll();
+	}
+
+	@Override
+	public Device addDevice(Device device) {
+		return deviceRepository.save(device);
+	}
+
+	@Override
+	public Device updateDeviceStatus(String ipAddress, String status) {
+		Device device = deviceRepository.findByIpAddress(ipAddress)
+				.orElseThrow(() -> new RuntimeException("Device not found"));
+		device.setStatus(status);
+		return deviceRepository.save(device);
+	}
+
+	@Override
+	public boolean pingDevice(String ipAddress) {
+		try {
+			Process ping = Runtime.getRuntime().exec("ping -c 1" + ipAddress);
+			boolean isAlive = ping.waitFor() ==0;
+			webSocketAlerts.sendAlert("Device "+ ipAddress + " is "+
+			(isAlive? "up": "down"));
+			return isAlive;
+		} catch (IOException | InterruptedException e) {
+			return false;
+		}
+		
+	}
+
+	@Override
+	public List<Device> discoverAndSaveDevices() {
+	    List<Device> devices = deviceScanner.scanDevices();
+	    System.out.println("Dispositivos encontrados: " + devices.size());  // Verifique quantos dispositivos foram encontrados
+	    
+	    devices.forEach(device -> {
+	        System.out.println("Verificando dispositivo: " + device.getMacAddress());
+	        
+	        //verifica se o dispositivo existe no banco
+	        boolean deviceExists = deviceRepository.findByMacAddress(device.getMacAddress()).isPresent();
+	        
+	        if (!deviceExists) {
+	            System.out.println("Dispositivo não encontrado no banco, salvando: " + device.getMacAddress());
+	            Device enrichedDevice = snmpManager.enrichDevice(device);
+	            deviceRepository.save(enrichedDevice);
+	        }
+	    });
+	    
+	    return devices;
+	}
+
+	
+
+}

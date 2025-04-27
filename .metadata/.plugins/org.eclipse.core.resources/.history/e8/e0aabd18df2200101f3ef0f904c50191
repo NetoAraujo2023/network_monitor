@@ -1,0 +1,5 @@
+package networkmonitor.dto;
+
+public class AuthRequest {
+
+}

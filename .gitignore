@@ -1,0 +1,18 @@
+ .metadata/
+*.log
+*.tmp
+*.bak
+*.swp
+.settings/
+bin/
+build/
+*.class
+.metadata/.plugins/org.eclipse.swt/EBWebView/
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+*.iml
+.idea/
+.DS_Store
+Thumbs.db
+

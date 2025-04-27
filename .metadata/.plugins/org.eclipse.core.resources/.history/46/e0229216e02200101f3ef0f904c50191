@@ -1,0 +1,5 @@
+package networkmonitor.websocket;
+
+public class WebSocketConfig {
+
+}

@@ -1,0 +1,5 @@
+package networkmonitor.service;
+
+public interface DeviceService {
+
+}

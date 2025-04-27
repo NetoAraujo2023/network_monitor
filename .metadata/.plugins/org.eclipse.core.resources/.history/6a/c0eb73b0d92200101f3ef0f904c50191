@@ -1,0 +1,64 @@
+package networkmonitor.service.impl;
+
+import java.io.IOException;
+
+import org.snmp4j.CommunityTarget;
+import org.snmp4j.PDU;
+import org.snmp4j.Snmp;
+import org.snmp4j.Target;
+import org.snmp4j.TransportMapping;
+import org.snmp4j.event.ResponseEvent;
+import org.snmp4j.mp.SnmpConstants;
+import org.snmp4j.smi.Address;
+import org.snmp4j.smi.GenericAddress;
+import org.snmp4j.smi.OID;
+import org.snmp4j.smi.OctetString;
+import org.snmp4j.smi.UdpAddress;
+import org.snmp4j.smi.VariableBinding;
+import org.snmp4j.transport.DefaultUdpTransportMapping;
+import org.springframework.stereotype.Service;
+
+import networkmonitor.model.Device;
+
+@Service
+public class SNMPManagerImpl {
+	
+	private Snmp snmp;
+	
+	public void start() throws IOException{
+		TransportMapping<UdpAddress> transport = new DefaultUdpTransportMapping();
+		snmp = new Snmp(transport);
+		transport.listen();
+	}
+	
+	public Device enrichDevice(Device device) {
+		try {
+			start();
+			
+			String deviceName= getAsString()
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	 public String getAsString(String ip, String oid) throws IOException {
+	        PDU pdu = new PDU();
+	        pdu.add(new VariableBinding(new OID(oid)));
+	        pdu.setType(PDU.GET);
+
+	        CommunityTarget target = new CommunityTarget();
+	        target.setCommunity(new OctetString("public"));
+	        target.setAddress(GenericAddress.parse("udp:" + ip + "/161"));
+	        target.setRetries(2);
+	        target.setTimeout(1500);
+	        target.setVersion(SnmpConstants.version2c);
+
+	        ResponseEvent<UdpAddress> response = snmp.send(pdu, target);
+	        if (response != null && response.getResponse() != null) {
+	            return response.getResponse().get(0).getVariable().toString();
+	        }
+	        return "Erro na consulta SNMP";
+	    }
+}

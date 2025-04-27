@@ -1,0 +1,70 @@
+package networkmonitor.service.impl;
+
+import java.io.IOException;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+import networkmonitor.model.Device;
+import networkmonitor.repository.DeviceRepository;
+import networkmonitor.service.DeviceService;
+import networkmonitor.websocket.WebSocketAlerts;
+
+@Service
+@RequiredArgsConstructor
+public class DeviceServiceImpl implements DeviceService{
+	private final DeviceRepository deviceRepository = null;
+	private final DeviceScannerImpl deviceScanner = new DeviceScannerImpl();
+	private final SNMPManagerImpl snmpManager = new SNMPManagerImpl();
+	private final WebSocketAlerts webSocketAlerts = null;
+	
+	@Override
+	public List<Device> getAllDevices() {
+		return deviceRepository.findAll();
+	}
+
+	@Override
+	public Device addDevice(Device device) {
+		return deviceRepository.save(device);
+	}
+
+	@Override
+	public Device updateDeviceStatus(String ipAddress, String status) {
+		Device device = deviceRepository.findByIpAddress(ipAddress)
+				.orElseThrow(() -> new RuntimeException("Device not found"));
+		device.setStatus(status);
+		return deviceRepository.save(device);
+	}
+
+	@Override
+	public boolean pingDevice(String ipAddress) {
+		try {
+			Process ping = Runtime.getRuntime().exec("ping -c 1" + ipAddress);
+			boolean isAlive = ping.waitFor() ==0;
+			webSocketAlerts.sendAlert("Device "+ ipAddress + " is "+
+			(isAlive? "up": "down"));
+			return isAlive;
+		} catch (IOException | InterruptedException e) {
+			return false;
+		}
+		
+	}
+
+	@Override
+	public List<Device> discoverAndSaveDevices() {
+	    List<Device> devices = deviceScanner.scanDevices();
+	    devices.forEach(device -> {
+	        //verifica se o dispositivo existe no banco
+	        boolean deviceExists = deviceRepository.findByMacAddress(device.getMacAddress()).isPresent();
+	        
+	        if (!deviceExists) {
+	            Device enrichedDevice = snmpManager.enrichDevice(device);
+	            deviceRepository.save(enrichedDevice);
+	        }
+	    });
+	    return devices;
+	}
+	
+
+}

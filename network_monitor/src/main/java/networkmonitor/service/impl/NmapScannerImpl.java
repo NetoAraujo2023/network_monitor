@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 public class NmapScannerImpl {
 	public static String scanHostName(String ipAddress) {
 		try {
-			ProcessBuilder processBuilder = new ProcessBuilder("sudo" + "nmap", "-O", "-sS", ipAddress);
+			ProcessBuilder processBuilder = new ProcessBuilder("sudo", "nmap", "-O", "-sS", ipAddress);
 			processBuilder.redirectErrorStream(true);
 			
 			Process process = processBuilder.start();

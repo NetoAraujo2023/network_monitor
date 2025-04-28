@@ -1,6 +1,7 @@
 package networkmonitor.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Data;
@@ -11,12 +12,32 @@ public class Device {
 	@Id
 	private String id;
 	
+	@Indexed(unique = true)
 	private String ipAddress;
+	
+	@Indexed(unique = true)
 	private String macAddress;
 	private String name;
 	private String vendor;
 	private String type;
 	private String status;
+	
+	private String hostname;
+	private String os;
+	
+	
+	public String getHostname() {
+		return hostname;
+	}
+	public void setHostname(String hostname) {
+		this.hostname = hostname;
+	}
+	public String getOs() {
+		return os;
+	}
+	public void setOs(String os) {
+		this.os = os;
+	}
 	public String getId() {
 		return id;
 	}

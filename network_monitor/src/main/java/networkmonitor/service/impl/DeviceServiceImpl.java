@@ -2,6 +2,7 @@ package networkmonitor.service.impl;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,7 @@ public class DeviceServiceImpl implements DeviceService{
 
 	@Override
 	public Device updateDeviceStatus(String ipAddress, String status) {
-		Device device = deviceRepository.findByIpAddress(ipAddress)
+		Device device = deviceRepository.findFirstByIpAddress(ipAddress)
 				.orElseThrow(() -> new RuntimeException("Device not found"));
 		device.setStatus(status);
 		return deviceRepository.save(device);
@@ -67,10 +68,9 @@ public class DeviceServiceImpl implements DeviceService{
 	    
 	    devices.forEach(device -> {
 	        
-	        //verifica se o dispositivo existe no banco
-	        boolean deviceExists = deviceRepository.findByMacAddress(device.getMacAddress()).isPresent();
+	        Optional<Device> existingDevice = deviceRepository.findFirstByMacAddress(device.getMacAddress());
 	        
-	        if (!deviceExists) {
+	        if (existingDevice.isEmpty()) { 
 	            Device enrichedDevice = snmpManager.enrichDevice(device);
 	            deviceRepository.save(enrichedDevice);
 	        }
@@ -78,6 +78,25 @@ public class DeviceServiceImpl implements DeviceService{
 	    
 	    return devices;
 	}
+	
+	public List<Device> nmapScan() {
+        List<Device> devices = deviceRepository.findAll();
+
+        for (Device device : devices) {
+            String ipAddress = device.getIpAddress();
+
+            String nmapOutput = NmapScannerImpl.scanHostName(ipAddress);
+
+            device.setHostname(NmapScannerImpl.extractHostname(nmapOutput));
+            device.setOs(NmapScannerImpl.extractSistemaOperacional(nmapOutput));
+
+            deviceRepository.save(device);
+
+            System.out.println("Dispositivo " + device.getIpAddress() + " atualizado.");
+        }
+        return devices;
+    }
+
 
 	
 

@@ -8,7 +8,8 @@ import networkmonitor.model.Device;
 
 public interface DeviceRepository extends MongoRepository<Device, String>{
 	
-	Optional<Device> findByIpAddress(String ipAddress);
-	Optional<Device> findByMacAddress(String macAddress);
+	Optional<Device> findFirstByIpAddress(String ipAddress);
+    Optional<Device> findFirstByMacAddress(String macAddress);
+    Optional<Device> findByMacAddress(String macAddress);
 	
 }

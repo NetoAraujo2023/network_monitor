@@ -3,11 +3,13 @@ package networkmonitor.service;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import networkmonitor.service.impl.DeviceServiceImpl;
+
 @Component
 public class ScheduledTasks {
-    private final DeviceService deviceService;
+    private final DeviceServiceImpl deviceService;
 
-    public ScheduledTasks(DeviceService deviceService) {
+    public ScheduledTasks(DeviceServiceImpl deviceService) {
         this.deviceService = deviceService;
     }
 

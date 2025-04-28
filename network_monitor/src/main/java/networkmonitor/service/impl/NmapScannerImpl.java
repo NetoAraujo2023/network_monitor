@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 public class NmapScannerImpl {
 	public static String scanHostName(String ipAddress) {
 		try {
-			ProcessBuilder processBuilder = new ProcessBuilder("nmap", "-O", "-sP", ipAddress);
+			ProcessBuilder processBuilder = new ProcessBuilder("nmap", "-O", "-sS", ipAddress);
 			processBuilder.redirectErrorStream(true);
 			
 			Process process = processBuilder.start();
@@ -42,18 +42,20 @@ public class NmapScannerImpl {
 	        return "Hostname desconhecido";
 	    }
 
-	    public static String extractSistemaOperacional(String nmapOutput) {
-	        //Get OS
-	        if (nmapOutput.contains("OS details:")) {
-	            int start = nmapOutput.indexOf("OS details:") + "OS details:".length();
-	            int end = nmapOutput.indexOf("\n", start);
-	            return nmapOutput.substring(start, end).trim();
-	        } else if (nmapOutput.contains("OS guesses:")) {
-	            int start = nmapOutput.indexOf("OS guesses:") + "OS guesses:".length();
-	            int end = nmapOutput.indexOf("\n", start);
-	            return nmapOutput.substring(start, end).trim();
-	        }
-	        return "Sistema Operacional desconhecido";
-	    }
+	 public static String extractSistemaOperacional(String nmapOutput) {
+		    if (nmapOutput.contains("Aggressive OS guesses:")) {
+		        int start = nmapOutput.indexOf("Aggressive OS guesses:") + "Aggressive OS guesses:".length();
+		        int end = nmapOutput.indexOf("\n", start);
+		        return nmapOutput.substring(start, end).trim();
+		    }
+
+		    else if (nmapOutput.contains("OS guesses:")) {
+		        int start = nmapOutput.indexOf("OS guesses:") + "OS guesses:".length();
+		        int end = nmapOutput.indexOf("\n", start);
+		        return nmapOutput.substring(start, end).trim();
+		    }
+		    
+		    return "Sistema Operacional desconhecido";
+		}
 
 }
